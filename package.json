@@ -1,12 +1,14 @@
 {
-  "name": "eduflow-setup",
+  "name": "eduflow-pro",
   "version": "0.1.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "test": "jest",
+    "test:watch": "jest --watch"
   },
   "dependencies": {
     "@stripe/react-stripe-js": "^6.2.0",
