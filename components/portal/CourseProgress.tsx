@@ -13,9 +13,14 @@ export function CourseProgress({ uid, courseId }: { uid: string; courseId: strin
 
   useEffect(() => {
     const ref = doc(db, 'courses', courseId, 'progress', uid)
-    return onSnapshot(ref, (snap) => {
-      if (snap.exists()) setProgress(snap.data() as Progress)
-    })
+    return onSnapshot(ref,
+      (snap) => {
+        setProgress(snap.exists() ? (snap.data() as Progress) : null)
+      },
+      (err) => {
+        console.error('CourseProgress listener error:', err)
+      }
+    )
   }, [uid, courseId])
 
   if (!progress) return <p style={{ color: '#6b7280' }}>Nenhum progresso registrado ainda.</p>

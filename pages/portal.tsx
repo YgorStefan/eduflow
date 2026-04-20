@@ -11,16 +11,26 @@ function PortalPage() {
   const [studentName, setStudentName] = useState('')
 
   useEffect(() => {
-    return onAuthStateChanged(auth, async (u) => {
+    let innerUnsub: (() => void) | null = null
+
+    const outerUnsub = onAuthStateChanged(auth, async (u) => {
+      innerUnsub?.()
+      innerUnsub = null
+
       if (!u) return
       setUser(u)
-      // Atualiza last_login
-      await updateDoc(doc(db, 'users', u.uid), { last_login: serverTimestamp() })
-      const unsub = onSnapshot(doc(db, 'users', u.uid), (snap) => {
+
+      updateDoc(doc(db, 'users', u.uid), { last_login: serverTimestamp() }).catch(() => {})
+
+      innerUnsub = onSnapshot(doc(db, 'users', u.uid), (snap) => {
         setStudentName(snap.data()?.name ?? '')
       })
-      return unsub
     })
+
+    return () => {
+      outerUnsub()
+      innerUnsub?.()
+    }
   }, [])
 
   return (
