@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
 import { onAuthStateChanged } from 'firebase/auth'
 import { doc, getDoc } from 'firebase/firestore'
@@ -10,6 +10,7 @@ type Role = 'student' | 'admin'
 export function withAuth(Component: NextPage, role: Role = 'student') {
   return function ProtectedPage() {
     const router = useRouter()
+    const [checked, setChecked] = useState(false)
 
     useEffect(() => {
       const unsub = onAuthStateChanged(auth, async (user) => {
@@ -26,10 +27,14 @@ export function withAuth(Component: NextPage, role: Role = 'student') {
         }
         if (role === 'admin' && data?.role !== 'admin') {
           router.replace('/portal')
+          return
         }
+        setChecked(true)
       })
       return unsub
     }, [router])
+
+    if (!checked) return null
 
     return <Component />
   }
