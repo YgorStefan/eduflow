@@ -2,7 +2,7 @@
 
 Sistema de retenção e operação de alunos — do checkout ao portal, com detecção automática de churn.
 
-Construído como portfólio para vaga EdTech, demonstrando integrações reais, código Node.js/Python, SQL/NoSQL e infraestrutura sem custo.
+Construído como portfólio, demonstrando integrações reais, código Node.js/Python, SQL/NoSQL e infraestrutura sem custo.
 
 **Demo:** [ygorstefan.com](https://ygorstefan.com)
 

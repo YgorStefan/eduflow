@@ -34,3 +34,34 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Security & Environments
+.env
+.env.*
+!.env.example
+!.env.local.example
+
+# Logs
+*.log
+
+# IDE & Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+Thumbs.db
+
+# Python
+__pycache__/
+*.py[cod]
+*venv*/
+.pytest_cache/
+
+# Custom Exclusions (Requested)
+.planning/
+.superpowers/
+docs/superpowers/
+docs/
+
