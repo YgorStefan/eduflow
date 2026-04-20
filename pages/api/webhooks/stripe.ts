@@ -63,7 +63,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(200).json({ received: true })
   }
 
-  const pi = event.data.object as {
+  const pi = event.data.object as unknown as {
     id: string
     amount: number
     metadata: { customer_name: string; customer_email: string; course: string }
