@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { StudentTable } from '@/components/admin/StudentTable'
 import { RevenueChart } from '@/components/admin/RevenueChart'
 import { withAuth } from '@/middleware/withAuth'
-import { signOut } from 'firebase/auth'
+import { signOut, getIdToken, onAuthStateChanged } from 'firebase/auth'
 import { auth } from '@/lib/firebase-client'
 
 interface Student {
@@ -16,10 +16,18 @@ function AdminPage() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    fetch('/api/admin/students')
-      .then((r) => r.json())
-      .then((data) => { setStudents(data); setLoading(false) })
-      .catch(() => setLoading(false))
+    const unsub = onAuthStateChanged(auth, (user) => {
+      if (!user) { setLoading(false); return }
+      getIdToken(user).then((token) => {
+        fetch('/api/admin/students', {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+          .then((r) => r.json())
+          .then((data) => { setStudents(Array.isArray(data) ? data : []); setLoading(false) })
+          .catch(() => setLoading(false))
+      })
+    })
+    return unsub
   }, [])
 
   const allPayments = students.flatMap((s) => s.payments.filter((p) => p.status === 'succeeded'))

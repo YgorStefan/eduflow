@@ -4,7 +4,7 @@ interface Student {
   email: string
   created_at: string
   enrollments: { course: string; status: string }[]
-  payments: { amount: number; status: string }[]
+  payments: { amount: number; status: string; paid_at: string }[]
 }
 
 export function StudentTable({ students }: { students: Student[] }) {
@@ -38,9 +38,12 @@ export function StudentTable({ students }: { students: Student[] }) {
                 </span>
               </td>
               <td style={{ padding: '8px 12px' }}>
-                {s.payments[0]
-                  ? `R$ ${s.payments[0].amount.toFixed(2).replace('.', ',')}`
-                  : '—'}
+                {(() => {
+                  const paid = s.payments
+                    .filter(p => p.status === 'succeeded')
+                    .reduce((acc, p) => acc + p.amount, 0)
+                  return paid > 0 ? `R$ ${paid.toFixed(2).replace('.', ',')}` : '—'
+                })()}
               </td>
             </tr>
           ))}
