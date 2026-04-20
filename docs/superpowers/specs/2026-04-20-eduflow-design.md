@@ -144,7 +144,7 @@ courses/{courseId}/progress/{uid}
 | Webhook com assinatura inválida | HTTP 400, ignora |
 | Falha ao gravar no Supabase | Rollback + alerta Discord + HTTP 500 |
 | Falha ao gravar no Firebase | Retry 3x → alerta Discord → log erro |
-| ClickUp API indisponível | Não bloqueia fluxo principal — log + retry assíncrono |
+| ClickUp API indisponível | Não bloqueia fluxo principal — log no Supabase, alerta Discord |
 | Pagamento recusado | Evento `payment_failed` — acesso não liberado |
 
 ### Frontend
@@ -188,6 +188,7 @@ courses/{courseId}/progress/{uid}
 | Gestão de tasks | ClickUp | Free |
 | CI/CD + cron Python | GitHub Actions | Free |
 | Pagamentos | Stripe | Test mode |
+| Alertas de erro | Discord Webhook | Free |
 
 Deploy completo sem custo — demonstrável ao vivo via ygorstefan.com.
 
