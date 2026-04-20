@@ -158,10 +158,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(500).json({ error: 'Erro interno' })
   }
 
-  // Envia link de primeiro acesso ao aluno (não bloqueia o fluxo)
-  adminAuth.generatePasswordResetLink(customer_email)
-    .then((link) => notifyDiscord(`✅ Novo aluno: ${customer_name} — link de acesso: ${link}`))
-    .catch(() => {})
+  // Envia email de primeiro acesso via Firebase Auth
+  fetch(`https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key=${process.env.NEXT_PUBLIC_FIREBASE_API_KEY}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ requestType: 'PASSWORD_RESET', email: customer_email }),
+  }).then(() => notifyDiscord(`✅ Novo aluno: ${customer_name} (${customer_email})`)).catch(() => {})
 
   // ClickUp task (não bloqueia o fluxo)
   createClickUpTask(customer_name).catch(() => {})
