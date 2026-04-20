@@ -10,7 +10,6 @@ async function buffer(req: NextApiRequest): Promise<Buffer> {
   const body = (req as unknown as { body?: unknown }).body
   if (typeof body === 'string') return Buffer.from(body)
   if (Buffer.isBuffer(body)) return body
-  if (body && typeof body === 'object') return Buffer.from(JSON.stringify(body))
   const chunks: Buffer[] = []
   for await (const chunk of req as unknown as Readable) {
     chunks.push(typeof chunk === 'string' ? Buffer.from(chunk) : chunk)
@@ -28,12 +27,13 @@ async function notifyDiscord(message: string) {
 }
 
 async function createClickUpTask(studentName: string) {
+  if (!process.env.CLICKUP_LIST_ID || !process.env.CLICKUP_API_TOKEN) return
   const deadline = Date.now() + 24 * 60 * 60 * 1000
   const res = await fetch(`https://api.clickup.com/api/v2/list/${process.env.CLICKUP_LIST_ID}/task`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: process.env.CLICKUP_API_TOKEN!,
+      Authorization: process.env.CLICKUP_API_TOKEN ?? '',
     },
     body: JSON.stringify({
       name: `Boas-vindas: ${studentName}`,
@@ -70,6 +70,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
   const { customer_name, customer_email, course } = pi.metadata
 
+  if (!customer_name || !customer_email || !course) {
+    return res.status(400).json({ error: 'Metadados obrigatórios ausentes' })
+  }
+
   // Upsert student
   let studentId: string
   const { data: existing } = await supabaseAdmin
@@ -95,15 +99,25 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   // Enrollment
-  await supabaseAdmin.from('enrollments').insert({ student_id: studentId, course, status: 'active' })
+  const { error: enrollError } = await supabaseAdmin.from('enrollments').insert({ student_id: studentId, course, status: 'active' })
+  if (enrollError) {
+    await notifyDiscord(`🔴 Erro ao criar enrollment: ${enrollError.message}`)
+    await supabaseAdmin.from('error_logs').insert({ event: event.type, error: enrollError.message })
+    return res.status(500).json({ error: 'Erro interno' })
+  }
 
   // Payment
-  await supabaseAdmin.from('payments').insert({
+  const { error: paymentError } = await supabaseAdmin.from('payments').insert({
     student_id: studentId,
     stripe_payment_id: pi.id,
     amount: pi.amount / 100,
     status: 'succeeded',
   })
+  if (paymentError) {
+    await notifyDiscord(`🔴 Erro ao criar payment: ${paymentError.message}`)
+    await supabaseAdmin.from('error_logs').insert({ event: event.type, error: paymentError.message })
+    return res.status(500).json({ error: 'Erro interno' })
+  }
 
   // Firebase Auth — cria conta para o aluno se não existir
   let firebaseUid: string

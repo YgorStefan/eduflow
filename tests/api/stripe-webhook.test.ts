@@ -48,7 +48,7 @@ describe('POST /api/webhooks/stripe', () => {
       throw new Error('Invalid signature')
     })
 
-    const { req, res } = createMocks({ method: 'POST', body: '{}', headers: { 'stripe-signature': 'bad' } })
+    const { req, res } = createMocks({ method: 'POST', body: Buffer.from('{}'), headers: { 'stripe-signature': 'bad' } })
     await handler(req, res)
     expect(res._getStatusCode()).toBe(400)
   })
@@ -65,7 +65,7 @@ describe('POST /api/webhooks/stripe', () => {
       },
     })
 
-    const { req, res } = createMocks({ method: 'POST', body: '{}', headers: { 'stripe-signature': 'valid' } })
+    const { req, res } = createMocks({ method: 'POST', body: Buffer.from('{}'), headers: { 'stripe-signature': 'valid' } })
     await handler(req, res)
     expect(res._getStatusCode()).toBe(200)
   })
