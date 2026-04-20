@@ -68,9 +68,31 @@ eduflow/
 
 - [ ] **Step 1: Criar projeto Next.js com TypeScript**
 
+O diretório já contém `.git/` e `docs/`, então scaffold em diretório adjacente e copie:
+
 ```bash
+cd C:/Users/Ygor
+
+# Scaffolda em diretório separado
+npx create-next-app@14 eduflow-setup --typescript --no-app --no-tailwind --no-src-dir --import-alias "@/*" --yes
+
+# Copia arquivos de configuração e estrutura base para o repositório
+cp eduflow-setup/package.json \
+   eduflow-setup/tsconfig.json \
+   eduflow-setup/next.config.mjs \
+   eduflow-setup/next-env.d.ts \
+   eduflow-setup/.gitignore \
+   eduflow/
+
+cp -r eduflow-setup/pages eduflow/
+cp -r eduflow-setup/public eduflow/
+cp -r eduflow-setup/styles eduflow/
+
+# Remove diretório temporário
+rm -rf eduflow-setup
+
 cd C:/Users/Ygor/eduflow
-npx create-next-app@14 . --typescript --no-app --no-tailwind --no-src-dir --import-alias "@/*" --yes
+npm install
 ```
 
 - [ ] **Step 2: Instalar dependências**
@@ -124,7 +146,7 @@ import type { Config } from 'jest'
 const config: Config = {
   testEnvironment: 'node',
   transform: { '^.+\\.tsx?$': 'ts-jest' },
-  testPathPattern: 'tests/',
+  testMatch: ['<rootDir>/tests/**/*.test.ts'],
   moduleNameMapper: { '^@/(.*)$': '<rootDir>/$1' },
 }
 
@@ -364,6 +386,11 @@ jest.mock('@/lib/firebase-admin', () => ({
     doc: jest.fn().mockReturnThis(),
     set: jest.fn().mockResolvedValue(undefined),
   },
+  adminAuth: {
+    getUserByEmail: jest.fn().mockRejectedValue({ code: 'auth/user-not-found' }),
+    createUser: jest.fn().mockResolvedValue({ uid: 'firebase-uid-123' }),
+    generatePasswordResetLink: jest.fn().mockResolvedValue('https://reset.link/test'),
+  },
 }))
 
 jest.mock('@/lib/stripe', () => ({
@@ -374,12 +401,17 @@ jest.mock('@/lib/stripe', () => ({
   },
 }))
 
-jest.mock('node-fetch', () => jest.fn().mockResolvedValue({ ok: true }))
-
 import handler from '@/pages/api/webhooks/stripe'
 import { stripe } from '@/lib/stripe'
 
 describe('POST /api/webhooks/stripe', () => {
+  beforeEach(() => {
+    global.fetch = jest.fn().mockResolvedValue({ ok: true })
+  })
+  afterEach(() => {
+    jest.restoreAllMocks()
+  })
+
   it('retorna 400 para assinatura inválida', async () => {
     ;(stripe.webhooks.constructEvent as jest.Mock).mockImplementationOnce(() => {
       throw new Error('Invalid signature')
@@ -432,7 +464,7 @@ import type { NextApiRequest, NextApiResponse } from 'next'
 import { Readable } from 'stream'
 import { stripe } from '@/lib/stripe'
 import { supabaseAdmin } from '@/lib/supabase'
-import { adminDb } from '@/lib/firebase-admin'
+import { adminDb, adminAuth } from '@/lib/firebase-admin'
 
 export const config = { api: { bodyParser: false } }
 
@@ -531,10 +563,36 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     status: 'succeeded',
   })
 
-  // Firebase — acesso do aluno
+  // Firebase Auth — cria conta para o aluno se não existir
+  let firebaseUid: string
   try {
-    await adminDb.collection('users').doc(customer_email).set(
-      { email: customer_email, name: customer_name, access_enabled: true, supabase_id: studentId },
+    const existing = await adminAuth.getUserByEmail(customer_email).catch(() => null)
+    if (existing) {
+      firebaseUid = existing.uid
+    } else {
+      const newUser = await adminAuth.createUser({
+        email: customer_email,
+        displayName: customer_name,
+      })
+      firebaseUid = newUser.uid
+    }
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err)
+    await notifyDiscord(`🔴 Erro ao criar usuário Firebase: ${msg}`)
+    await supabaseAdmin.from('error_logs').insert({ event: event.type, error: msg })
+    return res.status(500).json({ error: 'Erro interno' })
+  }
+
+  // Firebase Firestore — acesso do aluno (doc keyed by UID)
+  try {
+    await adminDb.collection('users').doc(firebaseUid).set(
+      {
+        uid: firebaseUid,
+        email: customer_email,
+        name: customer_name,
+        access_enabled: true,
+        supabase_id: studentId,
+      },
       { merge: true }
     )
   } catch (err: unknown) {
@@ -543,6 +601,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     await supabaseAdmin.from('error_logs').insert({ event: event.type, error: msg })
     return res.status(500).json({ error: 'Erro interno' })
   }
+
+  // Envia link de primeiro acesso ao aluno (não bloqueia o fluxo)
+  adminAuth.generatePasswordResetLink(customer_email)
+    .then((link) => notifyDiscord(`✅ Novo aluno: ${customer_name} — link de acesso: ${link}`))
+    .catch(() => {})
 
   // ClickUp task (não bloqueia o fluxo)
   createClickUpTask(customer_name).catch(() => {})
@@ -597,7 +660,7 @@ export function withAuth(Component: NextPage, role: Role = 'student') {
           router.replace('/login')
           return
         }
-        const snap = await getDoc(doc(db, 'users', user.email!))
+        const snap = await getDoc(doc(db, 'users', user.uid))
         const data = snap.data()
 
         if (!data?.access_enabled) {
@@ -815,8 +878,11 @@ npm run dev
 # Terminal 2 — Stripe CLI (escuta webhooks)
 stripe listen --forward-to localhost:3000/api/webhooks/stripe
 
-# Terminal 3 — simular pagamento
-stripe trigger payment_intent.succeeded
+# Terminal 3 — simular pagamento com metadata obrigatório
+stripe trigger payment_intent.succeeded \
+  --override "payment_intent:metadata.customer_name=João Silva" \
+  --override "payment_intent:metadata.customer_email=joao@email.com" \
+  --override "payment_intent:metadata.course=mentoria-eduflow"
 ```
 
 Esperado: log "Webhook recebido" no terminal 2, nenhum erro no terminal 1.
@@ -962,8 +1028,8 @@ function PortalPage() {
       if (!u) return
       setUser(u)
       // Atualiza last_login
-      await updateDoc(doc(db, 'users', u.email!), { last_login: serverTimestamp() })
-      const unsub = onSnapshot(doc(db, 'users', u.email!), (snap) => {
+      await updateDoc(doc(db, 'users', u.uid), { last_login: serverTimestamp() })
+      const unsub = onSnapshot(doc(db, 'users', u.uid), (snap) => {
         setStudentName(snap.data()?.name ?? '')
       })
       return unsub
@@ -981,7 +1047,7 @@ function PortalPage() {
 
       <section>
         <h2 style={{ marginBottom: 12 }}>Mentoria EduFlow Pro</h2>
-        {user && <CourseProgress uid={user.email!} courseId="mentoria-eduflow" />}
+        {user && <CourseProgress uid={user.uid} courseId="mentoria-eduflow" />}
       </section>
     </main>
   )
