@@ -4,8 +4,6 @@ Sistema de retenção e operação de alunos — do checkout ao portal, com dete
 
 Construído como portfólio, demonstrando integrações reais, código Node.js/Python, SQL/NoSQL e infraestrutura sem custo.
 
-**Demo:** [ygorstefan.com](https://ygorstefan.com)
-
 ---
 
 ## Visão Geral
