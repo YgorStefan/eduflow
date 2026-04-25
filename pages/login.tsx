@@ -1,6 +1,7 @@
 import { useState, FormEvent } from 'react'
 import { signInWithEmailAndPassword } from 'firebase/auth'
-import { auth } from '@/lib/firebase-client'
+import { doc, getDoc } from 'firebase/firestore'
+import { auth, db } from '@/lib/firebase-client'
 import { useRouter } from 'next/router'
 import Link from 'next/link'
 
@@ -16,8 +17,10 @@ export default function Login() {
     setLoading(true)
     setError(null)
     try {
-      await signInWithEmailAndPassword(auth, email, password)
-      router.push('/portal')
+      const { user } = await signInWithEmailAndPassword(auth, email, password)
+      const snap = await getDoc(doc(db, 'users', user.uid))
+      const role = snap.data()?.role ?? 'student'
+      router.push(role === 'admin' ? '/admin' : '/portal')
     } catch {
       setError('Email ou senha incorretos.')
     } finally {
