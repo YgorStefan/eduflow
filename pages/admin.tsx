@@ -106,7 +106,7 @@ function AdminPage() {
           <MetricCard label="Alunos ativos"   value={String(activeStudents)}   icon="✅" />
           <MetricCard
             label="Faturamento total"
-            value={`R$ ${(totalRevenue / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`}
+            value={`R$ ${totalRevenue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`}
             icon="💰"
             accent
           />

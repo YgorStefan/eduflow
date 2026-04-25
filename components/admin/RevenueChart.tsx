@@ -38,7 +38,7 @@ export function RevenueChart({ payments }: { payments: Payment[] }) {
             style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, height: '100%', justifyContent: 'flex-end' }}
           >
             <span style={{ fontSize: '0.65rem', fontWeight: 700, color: 'var(--accent)', letterSpacing: '0.01em' }}>
-              R${Math.round(total / 100).toLocaleString('pt-BR')}
+              R${Math.round(total).toLocaleString('pt-BR')}
             </span>
             <div style={{
               width: '100%',
