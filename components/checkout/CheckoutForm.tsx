@@ -1,11 +1,7 @@
 import { useState, FormEvent } from 'react'
 import { PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js'
 
-interface Props {
-  onSuccess: () => void
-}
-
-export function CheckoutForm({ onSuccess }: Props) {
+export function CheckoutForm({ onSuccess }: { onSuccess: () => void }) {
   const stripe = useStripe()
   const elements = useElements()
   const [error, setError] = useState<string | null>(null)
@@ -14,7 +10,6 @@ export function CheckoutForm({ onSuccess }: Props) {
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
     if (!stripe || !elements) return
-
     setLoading(true)
     setError(null)
 
@@ -34,17 +29,18 @@ export function CheckoutForm({ onSuccess }: Props) {
   }
 
   return (
-    <form onSubmit={handleSubmit} style={{ maxWidth: 480, margin: '0 auto' }}>
+    <form onSubmit={handleSubmit}>
       <PaymentElement />
       {error && (
-        <p role="alert" style={{ color: '#dc2626', marginTop: 8, fontSize: 14 }}>
+        <div className="ef-alert-error" role="alert" style={{ marginTop: 14 }}>
           {error}
-        </p>
+        </div>
       )}
       <button
         type="submit"
+        className="ef-btn ef-btn-primary ef-btn-full"
         disabled={loading || !stripe}
-        style={{ marginTop: 16, width: '100%', padding: '12px', background: '#2563eb', color: '#fff', border: 'none', borderRadius: 6, cursor: 'pointer' }}
+        style={{ marginTop: 18 }}
       >
         {loading ? 'Processando...' : 'Finalizar compra'}
       </button>

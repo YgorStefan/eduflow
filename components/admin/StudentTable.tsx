@@ -8,45 +8,53 @@ interface Student {
 }
 
 export function StudentTable({ students }: { students: Student[] }) {
+  if (students.length === 0) {
+    return (
+      <div style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.9375rem' }}>
+        Nenhum aluno cadastrado ainda.
+      </div>
+    )
+  }
+
   return (
-    <div style={{ overflowX: 'auto' }}>
-      <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
+    <div className="ef-table-wrap">
+      <table className="ef-table">
         <thead>
-          <tr style={{ borderBottom: '2px solid #e5e7eb', textAlign: 'left' }}>
-            <th style={{ padding: '8px 12px' }}>Nome</th>
-            <th style={{ padding: '8px 12px' }}>Email</th>
-            <th style={{ padding: '8px 12px' }}>Curso</th>
-            <th style={{ padding: '8px 12px' }}>Status</th>
-            <th style={{ padding: '8px 12px' }}>Valor pago</th>
+          <tr>
+            <th>Nome</th>
+            <th>Email</th>
+            <th>Curso</th>
+            <th>Status</th>
+            <th>Valor pago</th>
           </tr>
         </thead>
         <tbody>
-          {students.map((s) => (
-            <tr key={s.id} style={{ borderBottom: '1px solid #f3f4f6' }}>
-              <td style={{ padding: '8px 12px' }}>{s.name}</td>
-              <td style={{ padding: '8px 12px', color: '#6b7280' }}>{s.email}</td>
-              <td style={{ padding: '8px 12px' }}>{s.enrollments[0]?.course ?? '—'}</td>
-              <td style={{ padding: '8px 12px' }}>
-                <span style={{
-                  padding: '2px 8px',
-                  borderRadius: 20,
-                  fontSize: 12,
-                  background: s.enrollments[0]?.status === 'active' ? '#dcfce7' : '#fee2e2',
-                  color: s.enrollments[0]?.status === 'active' ? '#16a34a' : '#dc2626',
-                }}>
-                  {s.enrollments[0]?.status ?? '—'}
-                </span>
-              </td>
-              <td style={{ padding: '8px 12px' }}>
-                {(() => {
-                  const paid = s.payments
-                    .filter(p => p.status === 'succeeded')
-                    .reduce((acc, p) => acc + p.amount, 0)
-                  return paid > 0 ? `R$ ${paid.toFixed(2).replace('.', ',')}` : '—'
-                })()}
-              </td>
-            </tr>
-          ))}
+          {students.map((s) => {
+            const paid = s.payments
+              .filter((p) => p.status === 'succeeded')
+              .reduce((acc, p) => acc + p.amount, 0)
+            const status = s.enrollments[0]?.status ?? null
+
+            return (
+              <tr key={s.id}>
+                <td>{s.name}</td>
+                <td style={{ color: 'var(--text-muted)' }}>{s.email}</td>
+                <td>{s.enrollments[0]?.course ?? '—'}</td>
+                <td>
+                  {status ? (
+                    <span className={`ef-badge ${status === 'active' ? 'ef-badge-success' : 'ef-badge-error'}`}>
+                      {status === 'active' ? 'Ativo' : status}
+                    </span>
+                  ) : '—'}
+                </td>
+                <td style={{ color: paid > 0 ? 'var(--success)' : 'var(--text-muted)', fontWeight: paid > 0 ? 600 : 400 }}>
+                  {paid > 0
+                    ? `R$ ${(paid / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`
+                    : '—'}
+                </td>
+              </tr>
+            )
+          })}
         </tbody>
       </table>
     </div>
