@@ -12,7 +12,7 @@ export default function Checkout() {
   const router = useRouter()
   const [clientSecret, setClientSecret] = useState<string | null>(null)
   const [form, setForm] = useState({ name: '', email: '' })
-  const [step, setStep] = useState<'form' | 'payment'>('form')
+  const [step, setStep] = useState<'form' | 'payment' | 'success'>('form')
   const [loading, setLoading] = useState(false)
 
   async function handleContinue() {
@@ -67,13 +67,15 @@ export default function Checkout() {
           </div>
 
           {/* Step label */}
-          <p style={{
-            fontSize: '0.7rem', fontWeight: 800,
-            textTransform: 'uppercase', letterSpacing: '0.1em',
-            color: 'var(--text-muted)', marginBottom: 20,
-          }}>
-            {step === 'form' ? 'Suas informações' : 'Pagamento seguro 🔒'}
-          </p>
+          {step !== 'success' && (
+            <p style={{
+              fontSize: '0.7rem', fontWeight: 800,
+              textTransform: 'uppercase', letterSpacing: '0.1em',
+              color: 'var(--text-muted)', marginBottom: 20,
+            }}>
+              {step === 'form' ? 'Suas informações' : 'Pagamento seguro 🔒'}
+            </p>
+          )}
 
           {step === 'form' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
@@ -109,6 +111,29 @@ export default function Checkout() {
             </div>
           )}
 
+          {step === 'success' && (
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 20, padding: '8px 0', textAlign: 'center' }}>
+              <div style={{
+                width: 64, height: 64, borderRadius: '50%',
+                background: 'rgba(52,211,153,0.1)',
+                border: '1px solid rgba(52,211,153,0.25)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontSize: 28,
+              }}>
+                ✓
+              </div>
+              <div>
+                <h2 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: 8 }}>Pagamento confirmado!</h2>
+                <p style={{ fontSize: '0.9375rem', lineHeight: 1.7, color: 'var(--text-secondary)' }}>
+                  Enviamos um e-mail para <strong style={{ color: 'var(--text-primary)' }}>{form.email}</strong> com o link para criar sua senha e acessar a plataforma.
+                </p>
+                <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)', marginTop: 12 }}>
+                  Não encontrou? Verifique a caixa de spam.
+                </p>
+              </div>
+            </div>
+          )}
+
           {step === 'payment' && clientSecret && (
             <Elements
               stripe={stripePromise}
@@ -117,7 +142,7 @@ export default function Checkout() {
                 appearance: { theme: 'night', variables: { colorPrimary: '#9333ea', borderRadius: '6px' } },
               }}
             >
-              <CheckoutForm onSuccess={() => router.push('/portal')} />
+              <CheckoutForm onSuccess={() => setStep('success')} />
             </Elements>
           )}
         </div>
