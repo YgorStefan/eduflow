@@ -16,7 +16,7 @@ export default function Home() {
     <div style={{
       minHeight: '100vh',
       background: 'var(--bg)',
-      backgroundImage: 'radial-gradient(ellipse 60% 50% at 65% -5%, rgba(232,165,52,0.07) 0%, transparent 55%)',
+      backgroundImage: 'radial-gradient(ellipse 60% 50% at 65% -5%, rgba(147,51,234,0.07) 0%, transparent 55%)',
     }}>
       <div style={{ maxWidth: 1100, margin: '0 auto', padding: '0 1.5rem' }}>
         <div className="ef-landing-grid">
@@ -27,7 +27,7 @@ export default function Home() {
               display: 'inline-flex', alignItems: 'center', gap: 8,
               padding: '4px 14px',
               background: 'var(--accent-dim)',
-              border: '1px solid rgba(232,165,52,0.2)',
+              border: '1px solid rgba(147,51,234,0.2)',
               borderRadius: 20, marginBottom: 28,
             }}>
               <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--accent)', flexShrink: 0 }} />

@@ -48,7 +48,7 @@ export default function Checkout() {
             <span style={{
               display: 'inline-block',
               background: 'var(--accent-dim)', color: 'var(--accent)',
-              border: '1px solid rgba(232,165,52,0.2)',
+              border: '1px solid rgba(147,51,234,0.2)',
               borderRadius: 20, fontSize: '0.7rem', fontWeight: 800,
               padding: '3px 12px', marginBottom: 12,
               textTransform: 'uppercase', letterSpacing: '0.08em',
@@ -114,7 +114,7 @@ export default function Checkout() {
               stripe={stripePromise}
               options={{
                 clientSecret,
-                appearance: { theme: 'night', variables: { colorPrimary: '#e8a534', borderRadius: '6px' } },
+                appearance: { theme: 'night', variables: { colorPrimary: '#9333ea', borderRadius: '6px' } },
               }}
             >
               <CheckoutForm onSuccess={() => router.push('/portal')} />
