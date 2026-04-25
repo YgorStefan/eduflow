@@ -2,14 +2,12 @@ import { useState } from 'react'
 import { loadStripe } from '@stripe/stripe-js'
 import { Elements } from '@stripe/react-stripe-js'
 import { CheckoutForm } from '@/components/checkout/CheckoutForm'
-import { useRouter } from 'next/router'
 import Link from 'next/link'
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!)
 const COURSE = { name: 'Mentoria EduFlow Pro', price: 49700, slug: 'mentoria-eduflow' }
 
 export default function Checkout() {
-  const router = useRouter()
   const [clientSecret, setClientSecret] = useState<string | null>(null)
   const [form, setForm] = useState({ name: '', email: '' })
   const [step, setStep] = useState<'form' | 'payment' | 'success'>('form')
