@@ -49,7 +49,7 @@ export function StudentTable({ students }: { students: Student[] }) {
                 </td>
                 <td style={{ color: paid > 0 ? 'var(--success)' : 'var(--text-muted)', fontWeight: paid > 0 ? 600 : 400 }}>
                   {paid > 0
-                    ? `R$ ${(paid / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`
+                    ? `R$ ${paid.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`
                     : '—'}
                 </td>
               </tr>
