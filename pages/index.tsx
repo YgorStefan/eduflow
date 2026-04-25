@@ -1,43 +1,17 @@
-import { useState } from 'react'
-import { loadStripe } from '@stripe/stripe-js'
-import { Elements } from '@stripe/react-stripe-js'
-import { CheckoutForm } from '@/components/checkout/CheckoutForm'
-import { useRouter } from 'next/router'
+import Link from 'next/link'
 
-const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!)
-const COURSE = { name: 'Mentoria EduFlow Pro', price: 49700, slug: 'mentoria-eduflow' }
+const COURSE = { name: 'Mentoria EduFlow Pro', price: 49700 }
 
 const BENEFITS = [
-  { icon: '🎯', text: 'Mentoria individual com especialistas' },
-  { icon: '📚', text: 'Acesso vitalício ao conteúdo' },
-  { icon: '🏆', text: 'Certificado de conclusão reconhecido' },
-  { icon: '💬', text: 'Comunidade exclusiva de alunos' },
+  { icon: '🎯', title: 'Método comprovado', desc: 'Estratégias usadas por quem já alcançou resultados reais.' },
+  { icon: '⚡', title: 'Acesso imediato', desc: 'Todo o conteúdo liberado na hora do pagamento.' },
+  { icon: '♾️', title: 'Acesso vitalício', desc: 'Assista quando quiser, quantas vezes precisar.' },
+  { icon: '🏆', title: 'Certificado de conclusão', desc: 'Reconhecido ao finalizar todos os módulos.' },
+  { icon: '💬', title: 'Suporte incluso', desc: 'Tire dúvidas com a equipe durante toda a mentoria.' },
+  { icon: '📈', title: '5 módulos práticos', desc: 'Do fundamento à execução — direto ao ponto.' },
 ]
 
 export default function Home() {
-  const router = useRouter()
-  const [clientSecret, setClientSecret] = useState<string | null>(null)
-  const [form, setForm] = useState({ name: '', email: '' })
-  const [step, setStep] = useState<'form' | 'payment'>('form')
-  const [loading, setLoading] = useState(false)
-
-  async function handleContinue() {
-    if (!form.name || !form.email) return
-    setLoading(true)
-    try {
-      const res = await fetch('/api/create-payment-intent', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: form.name, email: form.email, course: COURSE.slug, amount: COURSE.price }),
-      })
-      const { clientSecret } = await res.json()
-      setClientSecret(clientSecret)
-      setStep('payment')
-    } finally {
-      setLoading(false)
-    }
-  }
-
   return (
     <div style={{
       minHeight: '100vh',
@@ -54,8 +28,7 @@ export default function Home() {
               padding: '4px 14px',
               background: 'var(--accent-dim)',
               border: '1px solid rgba(232,165,52,0.2)',
-              borderRadius: 20,
-              marginBottom: 28,
+              borderRadius: 20, marginBottom: 28,
             }}>
               <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--accent)', flexShrink: 0 }} />
               <span style={{ fontSize: '0.7rem', fontWeight: 800, color: 'var(--accent)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
@@ -67,21 +40,22 @@ export default function Home() {
               {COURSE.name}
             </h1>
 
-            <p style={{ fontSize: '1.0625rem', lineHeight: 1.75, marginBottom: 40, maxWidth: 460 }}>
+            <p style={{ fontSize: '1.0625rem', lineHeight: 1.75, marginBottom: 44, maxWidth: 460 }}>
               Acelere sua carreira com mentoria personalizada, conteúdo atualizado e uma comunidade ativa de profissionais.
             </p>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 14, marginBottom: 44 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem 1.5rem', marginBottom: 48 }}>
               {BENEFITS.map((b, i) => (
-                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+                <div key={i} style={{ display: 'flex', gap: 12 }}>
                   <span style={{
-                    width: 36, height: 36, borderRadius: 10,
-                    background: 'var(--bg-card)',
-                    border: '1px solid var(--border)',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: 16, flexShrink: 0,
+                    width: 36, height: 36, borderRadius: 9, flexShrink: 0,
+                    background: 'var(--bg-card)', border: '1px solid var(--border)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16,
                   }}>{b.icon}</span>
-                  <span style={{ fontSize: '0.9375rem' }}>{b.text}</span>
+                  <div>
+                    <p style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--text-primary)', marginBottom: 2 }}>{b.title}</p>
+                    <p style={{ fontSize: '0.8125rem', lineHeight: 1.5 }}>{b.desc}</p>
+                  </div>
                 </div>
               ))}
             </div>
@@ -94,65 +68,37 @@ export default function Home() {
             </div>
           </div>
 
-          {/* ── Right: checkout card ── */}
-          <div className="ef-card ef-anim ef-anim-d1" style={{ boxShadow: '0 8px 40px rgba(0,0,0,0.5)' }}>
-            <p style={{
-              fontSize: '0.7rem', fontWeight: 800,
-              textTransform: 'uppercase', letterSpacing: '0.1em',
-              color: 'var(--text-muted)', marginBottom: 24,
-            }}>
-              {step === 'form' ? 'Suas informações' : 'Pagamento seguro 🔒'}
-            </p>
+          {/* ── Right: CTA card ── */}
+          <div className="ef-card ef-anim ef-anim-d1" style={{ boxShadow: '0 8px 40px rgba(0,0,0,0.5)', display: 'flex', flexDirection: 'column', gap: 20 }}>
+            <div>
+              <p style={{ fontSize: '0.8125rem', fontWeight: 700, color: 'var(--text-muted)', marginBottom: 12 }}>
+                O que está incluso:
+              </p>
+              {['5 módulos + 17 aulas', 'Acesso vitalício ao portal', 'Comunidade exclusiva', 'Certificado de conclusão', 'Suporte da equipe'].map((item, i) => (
+                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 0', borderBottom: i < 4 ? '1px solid var(--border)' : 'none' }}>
+                  <span style={{ color: 'var(--success)', fontSize: '0.875rem' }}>✓</span>
+                  <span style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>{item}</span>
+                </div>
+              ))}
+            </div>
 
-            {step === 'form' && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
-                <div>
-                  <label className="ef-label">Nome completo</label>
-                  <input
-                    className="ef-input"
-                    placeholder="João Silva"
-                    value={form.name}
-                    onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-                    autoComplete="name"
-                  />
-                </div>
-                <div>
-                  <label className="ef-label">E-mail</label>
-                  <input
-                    className="ef-input"
-                    type="email"
-                    placeholder="joao@email.com"
-                    value={form.email}
-                    onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
-                    autoComplete="email"
-                  />
-                </div>
-                <button
-                  className="ef-btn ef-btn-primary ef-btn-full"
-                  onClick={handleContinue}
-                  disabled={!form.name || !form.email || loading}
-                  style={{ marginTop: 6 }}
-                >
-                  {loading ? 'Aguarde...' : 'Continuar para pagamento →'}
-                </button>
-                <p style={{ textAlign: 'center', fontSize: '0.8125rem', color: 'var(--text-muted)' }}>
-                  Já tem acesso?{' '}
-                  <a href="/login">Entrar na plataforma</a>
-                </p>
+            <div>
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginBottom: 14 }}>
+                <span style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--accent)' }}>
+                  R$ {(COURSE.price / 100).toFixed(0)}
+                </span>
+                <span style={{ fontSize: '0.8125rem', color: 'var(--text-muted)' }}>pagamento único</span>
               </div>
-            )}
 
-            {step === 'payment' && clientSecret && (
-              <Elements
-                stripe={stripePromise}
-                options={{
-                  clientSecret,
-                  appearance: { theme: 'night', variables: { colorPrimary: '#e8a534', borderRadius: '6px' } },
-                }}
-              >
-                <CheckoutForm onSuccess={() => router.push('/portal')} />
-              </Elements>
-            )}
+              <Link href="/checkout" className="ef-btn ef-btn-primary ef-btn-full" style={{ display: 'flex', textDecoration: 'none' }}>
+                Matricular agora →
+              </Link>
+
+              <p style={{ textAlign: 'center', fontSize: '0.8125rem', color: 'var(--text-muted)', marginTop: 14 }}>
+                Já tem acesso?{' '}
+                <Link href="/login">Entrar na plataforma</Link>
+              </p>
+            </div>
           </div>
         </div>
       </div>
