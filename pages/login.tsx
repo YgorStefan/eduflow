@@ -31,12 +31,19 @@ export default function Login() {
   return (
     <div className="ef-page-auth">
       <div style={{ width: '100%', maxWidth: 420 }}>
+        {/* Back link */}
+        <div className="ef-anim" style={{ marginBottom: 24 }}>
+          <Link href="/" style={{ fontSize: '0.875rem', color: 'var(--text-muted)', display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+            ← Página inicial
+          </Link>
+        </div>
+
         {/* Brand mark */}
-        <div className="ef-anim" style={{ textAlign: 'center', marginBottom: 36 }}>
+        <div className="ef-anim ef-anim-d1" style={{ textAlign: 'center', marginBottom: 36 }}>
           <div style={{
             display: 'inline-flex', width: 52, height: 52, borderRadius: 14,
             background: 'var(--accent)', alignItems: 'center', justifyContent: 'center',
-            fontSize: 22, marginBottom: 18, boxShadow: '0 8px 24px rgba(232,165,52,0.35)',
+            fontSize: 22, marginBottom: 18, boxShadow: '0 8px 24px rgba(147,51,234,0.35)',
           }}>
             ⚡
           </div>

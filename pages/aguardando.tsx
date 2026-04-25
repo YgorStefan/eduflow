@@ -65,7 +65,7 @@ export default function Aguardando() {
                 : step.active
                   ? 'var(--accent)'
                   : 'var(--text-muted)',
-              border: step.active ? '1px solid rgba(232,165,52,0.3)' : '1px solid transparent',
+              border: step.active ? '1px solid rgba(147,51,234,0.3)' : '1px solid transparent',
             }}>
               {step.done ? '✓' : step.active ? '◉' : '○'}
             </div>

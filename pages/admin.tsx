@@ -15,7 +15,7 @@ function MetricCard({ label, value, icon, accent }: { label: string; value: stri
   return (
     <div
       className="ef-card ef-anim"
-      style={accent ? { borderColor: 'rgba(232,165,52,0.25)', background: 'rgba(232,165,52,0.04)' } : {}}
+      style={accent ? { borderColor: 'rgba(147,51,234,0.25)', background: 'rgba(147,51,234,0.04)' } : {}}
     >
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
         <p style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>

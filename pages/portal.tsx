@@ -83,7 +83,7 @@ function PortalPage() {
             <div style={{
               width: 44, height: 44, borderRadius: 12, flexShrink: 0,
               background: 'var(--accent-dim)',
-              border: '1px solid rgba(232,165,52,0.2)',
+              border: '1px solid rgba(147,51,234,0.2)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               fontSize: 20,
             }}>
