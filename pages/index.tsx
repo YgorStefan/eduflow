@@ -26,12 +26,12 @@ export default function Home() {
             <div style={{
               display: 'inline-flex', alignItems: 'center', gap: 8,
               padding: '4px 14px',
-              background: 'var(--accent-dim)',
-              border: '1px solid rgba(147,51,234,0.2)',
+              background: 'rgba(52,211,153,0.1)',
+              border: '1px solid rgba(52,211,153,0.25)',
               borderRadius: 20, marginBottom: 28,
             }}>
-              <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--accent)', flexShrink: 0 }} />
-              <span style={{ fontSize: '0.7rem', fontWeight: 800, color: 'var(--accent)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+              <span className="ef-dot-pulse" style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--success)', flexShrink: 0 }} />
+              <span style={{ fontSize: '0.7rem', fontWeight: 800, color: 'var(--success)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
                 Turma aberta
               </span>
             </div>
