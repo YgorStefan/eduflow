@@ -43,7 +43,7 @@ export function RevenueChart({ payments }: { payments: Payment[] }) {
             <div style={{
               width: '100%',
               height: `${heightPct}%`,
-              background: 'linear-gradient(180deg, var(--accent) 0%, rgba(147,51,234,0.35) 100%)',
+              background: 'linear-gradient(180deg, var(--success) 0%, rgba(52,211,153,0.3) 100%)',
               borderRadius: '5px 5px 0 0',
               transition: 'height 0.5s ease',
               minHeight: 4,
