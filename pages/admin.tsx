@@ -11,11 +11,17 @@ interface Student {
   payments: { amount: number; status: string; paid_at: string }[]
 }
 
-function MetricCard({ label, value, icon, accent }: { label: string; value: string; icon: string; accent?: boolean }) {
+function MetricCard({ label, value, icon, color }: { label: string; value: string; icon: string; color?: 'purple' | 'green' }) {
+  const styles = {
+    purple: { border: 'rgba(147,51,234,0.25)', bg: 'rgba(147,51,234,0.04)', iconBg: 'var(--accent-dim)', text: 'var(--accent)' },
+    green:  { border: 'rgba(52,211,153,0.25)',  bg: 'rgba(52,211,153,0.04)',  iconBg: 'var(--success-dim)', text: 'var(--success)' },
+  }
+  const s = color ? styles[color] : null
+
   return (
     <div
       className="ef-card ef-anim"
-      style={accent ? { borderColor: 'rgba(147,51,234,0.25)', background: 'rgba(147,51,234,0.04)' } : {}}
+      style={s ? { borderColor: s.border, background: s.bg } : {}}
     >
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
         <p style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
@@ -23,16 +29,13 @@ function MetricCard({ label, value, icon, accent }: { label: string; value: stri
         </p>
         <span style={{
           width: 34, height: 34, borderRadius: 9,
-          background: accent ? 'var(--accent-dim)' : 'var(--bg-elevated)',
+          background: s ? s.iconBg : 'var(--bg-elevated)',
           display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16,
         }}>
           {icon}
         </span>
       </div>
-      <p style={{
-        fontSize: '2rem', fontWeight: 800, lineHeight: 1,
-        color: accent ? 'var(--accent)' : 'var(--text-primary)',
-      }}>
+      <p style={{ fontSize: '2rem', fontWeight: 800, lineHeight: 1, color: s ? s.text : 'var(--text-primary)' }}>
         {value}
       </p>
     </div>
@@ -108,7 +111,7 @@ function AdminPage() {
             label="Faturamento total"
             value={`R$ ${totalRevenue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`}
             icon="💰"
-            accent
+            color="green"
           />
         </div>
 

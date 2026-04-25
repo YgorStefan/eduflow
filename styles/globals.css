@@ -267,6 +267,25 @@ a:hover { opacity: 0.8; }
   0%, 100% { opacity: 1; }
   50% { opacity: 0.5; }
 }
+@keyframes ef-dot-ping {
+  0%        { transform: scale(1); opacity: 1; }
+  70%, 100% { transform: scale(2.4); opacity: 0; }
+}
+
+.ef-dot-pulse {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.ef-dot-pulse::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: var(--success);
+  animation: ef-dot-ping 1.4s ease-out infinite;
+}
 
 .ef-anim { opacity: 0; animation: ef-fade-up 0.5s ease forwards; }
 .ef-anim-d1 { animation-delay: 80ms; }
