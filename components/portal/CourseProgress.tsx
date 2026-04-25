@@ -14,25 +14,50 @@ export function CourseProgress({ uid, courseId }: { uid: string; courseId: strin
   useEffect(() => {
     const ref = doc(db, 'courses', courseId, 'progress', uid)
     return onSnapshot(ref,
-      (snap) => {
-        setProgress(snap.exists() ? (snap.data() as Progress) : null)
-      },
-      (err) => {
-        console.error('CourseProgress listener error:', err)
-      }
+      (snap) => setProgress(snap.exists() ? (snap.data() as Progress) : null),
+      (err) => console.error('CourseProgress listener error:', err)
     )
   }, [uid, courseId])
 
-  if (!progress) return <p style={{ color: '#6b7280' }}>Nenhum progresso registrado ainda.</p>
+  if (!progress) {
+    return (
+      <div style={{
+        padding: '1.25rem',
+        background: 'var(--bg-elevated)',
+        borderRadius: 'var(--radius)',
+        textAlign: 'center',
+      }}>
+        <p style={{ fontSize: '0.9rem', marginBottom: 4 }}>Nenhum progresso registrado ainda.</p>
+        <p style={{ fontSize: '0.8125rem', color: 'var(--text-muted)' }}>
+          Acesse o conteúdo para começar.
+        </p>
+      </div>
+    )
+  }
 
   return (
     <div>
-      <div style={{ background: '#f3f4f6', borderRadius: 8, overflow: 'hidden', height: 12 }}>
-        <div style={{ background: '#2563eb', height: '100%', width: `${progress.progress_pct}%`, transition: 'width 0.3s' }} />
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+        <span style={{ fontSize: '0.875rem' }}>
+          {progress.completed_lessons.length} aula{progress.completed_lessons.length !== 1 ? 's' : ''} concluída{progress.completed_lessons.length !== 1 ? 's' : ''}
+        </span>
+        <span style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--accent)' }}>
+          {progress.progress_pct}%
+        </span>
       </div>
-      <p style={{ marginTop: 8, fontSize: 14, color: '#6b7280' }}>
-        {progress.progress_pct}% concluído · {progress.completed_lessons.length} aulas
-      </p>
+
+      <div className="ef-progress-track">
+        <div className="ef-progress-fill" style={{ width: `${progress.progress_pct}%` }} />
+      </div>
+
+      {progress.last_accessed && (
+        <p style={{ marginTop: 10, fontSize: '0.8125rem', color: 'var(--text-muted)' }}>
+          Último acesso:{' '}
+          {progress.last_accessed.toDate().toLocaleDateString('pt-BR', {
+            day: '2-digit', month: 'long', year: 'numeric',
+          })}
+        </p>
+      )}
     </div>
   )
 }
